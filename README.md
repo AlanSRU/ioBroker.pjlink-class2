@@ -28,6 +28,12 @@ One instance drives any number of PJLink projectors or displays. It speaks the p
 The class is detected with `CLSS ?`. Class 2 states are only created for projectors that
 report Class 2.
 
+## Requirements
+
+- Node.js 22 or newer
+- js-controller 6.0.11 or newer
+- Admin 7.6.20 or newer
+
 ## Configuration
 
 | Setting | |
@@ -100,6 +106,10 @@ Association (JBMIA); see the [PJLink website](https://pjlink.jbmia.or.jp/english
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (Alan Paris) Polls are re-armed after each poll finishes, so a slow projector can never cause overlapping polls
+* (Alan Paris) README lists the minimum Node.js, js-controller and admin versions
+
 ### 0.1.0 (2026-09-25)
 * (Alan Paris) initial release
 

@@ -11,6 +11,54 @@ const NS = 'pjlink-class2.0';
 // Run integration tests - See https://github.com/ioBroker/testing for a detailed explanation and further options
 tests.integration(path.join(__dirname, '..'), {
     defineAdditionalTests({ suite }) {
+        suite('Polling a Class 1 projector every second', getHarness => {
+            let harness;
+            let sim;
+            const getState = id =>
+                new Promise((resolve, reject) =>
+                    harness.states.getState(`${NS}.${id}`, (err, state) => (err ? reject(err) : resolve(state))),
+                );
+            const waitFor = async (id, predicate, timeoutMs = 8000) => {
+                const end = Date.now() + timeoutMs;
+                let state;
+                while (Date.now() < end) {
+                    state = await getState(id);
+                    if (state && state.ack && predicate(state.val)) {
+                        return state.val;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                throw new Error(`${id} is ${JSON.stringify(state && state.val)} after ${timeoutMs} ms`);
+            };
+
+            before(async function () {
+                this.timeout(60000);
+                harness = getHarness();
+                sim = new PjlinkSimulator({ cls: 1 });
+                const port = await sim.listen();
+                await harness.changeAdapterConfig('pjlink-class2', {
+                    native: {
+                        devices: [{ enabled: true, name: 'Sim 2', host: '127.0.0.1', port }],
+                        pollInterval: 1,
+                        infoInterval: 3600,
+                        notifications: false,
+                    },
+                });
+                await harness.startAdapterAndWait(true);
+            });
+
+            after(() => sim && sim.close());
+
+            it('keeps polling: picks up repeated changes made outside the adapter', async function () {
+                this.timeout(30000);
+                expect(await waitFor('sim_2.info.class', v => v === 1)).to.equal(1);
+                for (const power of [1, 0, 1]) {
+                    sim.state.power = power;
+                    expect(await waitFor('sim_2.status.power', v => v === power)).to.equal(power);
+                }
+            });
+        });
+
         suite('Against a simulated Class 2 projector with a password', getHarness => {
             let harness;
             let sim;

@@ -47,6 +47,8 @@ class PjlinkClass2 extends utils.Adapter {
   /** ids of disabled projectors, whose objects are kept */
   disabledIds = /* @__PURE__ */ new Set();
   udp;
+  /** status poll interval in ms */
+  pollInterval = 5e3;
   /** set first thing in onUnload, so a still-running onReady stops before opening resources */
   stopped = false;
   constructor(options = {}) {
@@ -98,12 +100,11 @@ class PjlinkClass2 extends utils.Adapter {
       this.log.warn("No projectors configured \u2014 open the instance settings and add at least one.");
       return;
     }
-    const interval = Math.min(3600, Math.max(1, Number(this.config.pollInterval) || 5)) * 1e3;
+    this.pollInterval = Math.min(3600, Math.max(1, Number(this.config.pollInterval) || 5)) * 1e3;
     let stagger = 0;
     for (const p of this.projectors.values()) {
-      p.refreshTimer = this.setTimeout(() => void this.poll(p), stagger);
+      this.schedulePoll(p, stagger);
       stagger += 250;
-      p.pollTimer = this.setInterval(() => void this.poll(p), interval);
     }
   }
   /** Turn the configured projector table into runtime projectors. */
@@ -145,6 +146,7 @@ class PjlinkClass2 extends utils.Adapter {
         lampCount: 0,
         connected: false,
         polling: false,
+        refreshPending: false,
         nextInfo: 0
       });
       this.log.info(`Projector "${label}" -> ${this.namespace}.${id} (${host}:${port})`);
@@ -402,6 +404,7 @@ class PjlinkClass2 extends utils.Adapter {
    */
   async poll(p) {
     if (p.polling) {
+      p.refreshPending = true;
       return;
     }
     p.polling = true;
@@ -479,7 +482,24 @@ class PjlinkClass2 extends utils.Adapter {
       }
     } finally {
       p.polling = false;
+      this.schedulePoll(p, p.refreshPending ? 0 : this.pollInterval);
+      p.refreshPending = false;
     }
+  }
+  /**
+   * Replace the projector's pending poll with one after the given delay.
+   *
+   * @param p - the projector
+   * @param delayMs - delay before polling
+   */
+  schedulePoll(p, delayMs) {
+    if (this.stopped) {
+      return;
+    }
+    if (p.pollTimer) {
+      this.clearTimeout(p.pollTimer);
+    }
+    p.pollTimer = this.setTimeout(() => void this.poll(p), delayMs);
   }
   /**
    * The slow-changing part of a poll: identity, inputs, lamps and Class 2 details.
@@ -648,10 +668,11 @@ class PjlinkClass2 extends utils.Adapter {
    * @param delayMs - delay before polling
    */
   refreshSoon(p, delayMs) {
-    if (p.refreshTimer) {
-      this.clearTimeout(p.refreshTimer);
+    if (p.polling) {
+      p.refreshPending = true;
+    } else {
+      this.schedulePoll(p, delayMs);
     }
-    p.refreshTimer = this.setTimeout(() => void this.poll(p), delayMs);
   }
   /**
    * Is called if a subscribed state changes.
@@ -817,10 +838,7 @@ class PjlinkClass2 extends utils.Adapter {
     try {
       for (const p of this.projectors.values()) {
         if (p.pollTimer) {
-          this.clearInterval(p.pollTimer);
-        }
-        if (p.refreshTimer) {
-          this.clearTimeout(p.refreshTimer);
+          this.clearTimeout(p.pollTimer);
         }
         p.client.close();
       }

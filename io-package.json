@@ -3,6 +3,19 @@
         "name": "pjlink-class2",
         "version": "0.1.0",
         "news": {
+            "0.1.1": {
+                "en": "Polls re-armed after each poll finishes, so a slow projector cannot cause overlapping polls; README lists minimum versions",
+                "de": "Abfragen werden erst nach Abschluss der vorherigen neu geplant, sodass sich bei einem langsamen Projektor keine Abfragen überschneiden; README nennt die Mindestversionen",
+                "ru": "Опрос планируется заново только после завершения предыдущего, поэтому медленный проектор не вызывает наложения опросов; в README указаны минимальные версии",
+                "pt": "As consultas são reagendadas só depois de a anterior terminar, para que um projetor lento não cause consultas sobrepostas; o README indica as versões mínimas",
+                "nl": "Peilingen worden pas opnieuw ingepland als de vorige klaar is, zodat een trage projector geen overlappende peilingen veroorzaakt; README vermeldt de minimale versies",
+                "fr": "Les interrogations ne sont replanifiées qu'à la fin de la précédente, un projecteur lent ne provoque donc plus de chevauchement ; le README indique les versions minimales",
+                "it": "Le interrogazioni vengono ripianificate solo al termine della precedente, così un proiettore lento non causa sovrapposizioni; il README indica le versioni minime",
+                "es": "Los sondeos se reprograman solo cuando termina el anterior, así un proyector lento no provoca sondeos superpuestos; el README indica las versiones mínimas",
+                "pl": "Odpytywanie jest planowane ponownie dopiero po zakończeniu poprzedniego, więc wolny projektor nie powoduje nakładania się zapytań; README podaje minimalne wersje",
+                "uk": "Опитування плануються заново лише після завершення попереднього, тож повільний проєктор не спричиняє накладання опитувань; у README вказано мінімальні версії",
+                "zh-cn": "每次轮询结束后才安排下一次轮询，因此响应慢的投影仪不会导致轮询重叠；README 列出了最低版本要求"
+            },
             "0.1.0": {
                 "en": "initial release",
                 "de": "erste Version",

@@ -96,8 +96,10 @@ interface Projector {
     failures: number;
     /** consecutive successful polls */
     successes: number;
-    pollTimer?: ioBroker.Interval;
-    refreshTimer?: ioBroker.Timeout;
+    /** the one pending poll; each poll arms the next when it finishes */
+    pollTimer?: ioBroker.Timeout;
+    /** a refresh was asked for while a poll was running */
+    refreshPending: boolean;
 }
 
 type Updates = [string, ioBroker.StateValue][];
@@ -107,6 +109,8 @@ class PjlinkClass2 extends utils.Adapter {
     /** ids of disabled projectors, whose objects are kept */
     private disabledIds = new Set<string>();
     private udp?: PjlinkUdp;
+    /** status poll interval in ms */
+    private pollInterval = 5000;
     /** set first thing in onUnload, so a still-running onReady stops before opening resources */
     private stopped = false;
 
@@ -165,13 +169,12 @@ class PjlinkClass2 extends utils.Adapter {
             this.log.warn('No projectors configured — open the instance settings and add at least one.');
             return;
         }
-        const interval = Math.min(3600, Math.max(1, Number(this.config.pollInterval) || 5)) * 1000;
+        this.pollInterval = Math.min(3600, Math.max(1, Number(this.config.pollInterval) || 5)) * 1000;
         let stagger = 0;
         for (const p of this.projectors.values()) {
             // spread the projectors out so they are not polled in one burst
-            p.refreshTimer = this.setTimeout(() => void this.poll(p), stagger);
+            this.schedulePoll(p, stagger);
             stagger += 250;
-            p.pollTimer = this.setInterval(() => void this.poll(p), interval);
         }
     }
 
@@ -214,6 +217,7 @@ class PjlinkClass2 extends utils.Adapter {
                 lampCount: 0,
                 connected: false,
                 polling: false,
+                refreshPending: false,
                 nextInfo: 0,
             });
             this.log.info(`Projector "${label}" -> ${this.namespace}.${id} (${host}:${port})`);
@@ -497,6 +501,7 @@ class PjlinkClass2 extends utils.Adapter {
      */
     private async poll(p: Projector): Promise<void> {
         if (p.polling) {
+            p.refreshPending = true;
             return;
         }
         p.polling = true;
@@ -579,7 +584,26 @@ class PjlinkClass2 extends utils.Adapter {
             }
         } finally {
             p.polling = false;
+            // re-arm only now, so a slow poll (timeouts) can never overlap the next one
+            this.schedulePoll(p, p.refreshPending ? 0 : this.pollInterval);
+            p.refreshPending = false;
         }
+    }
+
+    /**
+     * Replace the projector's pending poll with one after the given delay.
+     *
+     * @param p - the projector
+     * @param delayMs - delay before polling
+     */
+    private schedulePoll(p: Projector, delayMs: number): void {
+        if (this.stopped) {
+            return;
+        }
+        if (p.pollTimer) {
+            this.clearTimeout(p.pollTimer);
+        }
+        p.pollTimer = this.setTimeout(() => void this.poll(p), delayMs);
     }
 
     /**
@@ -761,10 +785,11 @@ class PjlinkClass2 extends utils.Adapter {
      * @param delayMs - delay before polling
      */
     private refreshSoon(p: Projector, delayMs: number): void {
-        if (p.refreshTimer) {
-            this.clearTimeout(p.refreshTimer);
+        if (p.polling) {
+            p.refreshPending = true; // the running poll schedules it when it finishes
+        } else {
+            this.schedulePoll(p, delayMs);
         }
-        p.refreshTimer = this.setTimeout(() => void this.poll(p), delayMs);
     }
 
     /**
@@ -940,10 +965,7 @@ class PjlinkClass2 extends utils.Adapter {
         try {
             for (const p of this.projectors.values()) {
                 if (p.pollTimer) {
-                    this.clearInterval(p.pollTimer);
-                }
-                if (p.refreshTimer) {
-                    this.clearTimeout(p.refreshTimer);
+                    this.clearTimeout(p.pollTimer);
                 }
                 p.client.close();
             }
