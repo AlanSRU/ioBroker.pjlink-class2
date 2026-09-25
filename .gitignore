@@ -22,3 +22,7 @@ CLAUDE.md
 
 # Local pre-release review marker (iobroker-dev release gate) — never commit
 .review/
+
+# OS and tooling junk
+.DS_Store
+npm-debug.log*
