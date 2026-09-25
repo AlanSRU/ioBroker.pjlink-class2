@@ -1,0 +1,22 @@
+{
+    "Active": "Actief",
+    "IP address or host name": "IP-adres of hostnaam",
+    "Information poll interval (s)": "Interval(s) voor informatie-opvraging",
+    "Listen on UDP 4352 (Class 2 notifications and search)": "Luister op UDP 4352 (Klasse 2-meldingen en zoeken)",
+    "Name": "Naam",
+    "Options": "Opties",
+    "PJLink password": "PJLink-wachtwoord",
+    "Port": "Haven",
+    "Projectors": "Projectoren",
+    "Search": "Zoekopdracht",
+    "Search broadcast addresses": "Zoek uitzendadressen",
+    "Search for projectors": "Zoek naar projectoren",
+    "Status poll interval (s)": "Status poll-interval(s)",
+    "broadcastHelp": "Door komma's gescheiden, b.v. 192.168.254.255 voor een gerichte uitzending naar één subnet",
+    "devicesHint": "Eén rij per projector. De naam wordt de objectboommap (pjlink-class2.0.<naam>.control.power); laat het leeg om de host te gebruiken. Klasse 1- en Klasse 2-projectoren worden automatisch gedetecteerd.",
+    "infoIntervalHelp": "Hoe vaak namen, ingangen, lampuren en andere langzaam veranderende waarden worden gelezen",
+    "notificationsHelp": "Er kan slechts één programma per host op deze poort luisteren",
+    "passwordHelp": "Wordt gebruikt voor elke projector die om PJLink-authenticatie vraagt; laat leeg als authenticatie is uitgeschakeld",
+    "pollIntervalHelp": "Hoe vaak de stroom-, ingangs-, mute- en foutstatus worden gelezen",
+    "searchHint": "Zendt een PJLink Klasse 2-zoekopdracht uit en voegt elke projector toe die antwoordt op de tabel. Klasse 1-projectoren antwoorden niet en moeten met de hand worden toegevoegd, en uitzendingen passeren geen routers. Sla openstaande wijzigingen eerst op: gevonden projectoren worden samengevoegd in de opgeslagen lijst."
+}

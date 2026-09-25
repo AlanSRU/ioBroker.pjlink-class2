@@ -1,0 +1,22 @@
+{
+    "Active": "积极的",
+    "IP address or host name": "IP 地址或主机名",
+    "Information poll interval (s)": "信息轮询间隔（秒）",
+    "Listen on UDP 4352 (Class 2 notifications and search)": "监听 UDP 4352（2 类通知和搜索）",
+    "Name": "姓名",
+    "Options": "选项",
+    "PJLink password": "PJLink 密码",
+    "Port": "港口",
+    "Projectors": "投影仪",
+    "Search": "搜索",
+    "Search broadcast addresses": "搜索广播地址",
+    "Search for projectors": "搜索投影仪",
+    "Status poll interval (s)": "状态轮询间隔（秒）",
+    "broadcastHelp": "逗号分隔，例如192.168.254.255 用于向一个子网进行定向广播",
+    "devicesHint": "每台投影仪一行。该名称成为对象树文件夹 (pjlink-class2.0.<name>.control.power)；将其留空以使用主机。自动检测 1 类和 2 类投影仪。",
+    "infoIntervalHelp": "读取名称、输入、灯泡使用时间和其他缓慢变化值的频率",
+    "notificationsHelp": "每个主机只能有一个程序可以侦听此端口",
+    "passwordHelp": "用于每台要求 PJLink 身份验证的投影仪；如果身份验证关闭，则留空",
+    "pollIntervalHelp": "读取电源、输入、静音和错误状态的频率",
+    "searchHint": "广播 PJLink 2 类搜索并添加符合表的每台投影仪。 1 类投影仪不应答，必须手动添加，并且广播不跨路由器。首先保存待处理的更改：找到的投影仪将合并到已保存的列表中。"
+}

@@ -1,0 +1,48 @@
+{
+    "cli": true,
+    "target": "directory",
+    "adapterName": "pjlink-class2",
+    "title": "PJLink Class 2",
+    "description": "Control projectors and displays via PJLink Class 1 and Class 2 (TCP/UDP 4352): power, input, mute, freeze, volume, lamp/filter/error status, search and status notifications.",
+    "keywords": [
+        "pjlink",
+        "projector",
+        "class2",
+        "display",
+        "av"
+    ],
+    "contributors": [],
+    "expert": "yes",
+    "features": [
+        "adapter"
+    ],
+    "adminFeatures": [],
+    "type": "multimedia",
+    "startMode": "daemon",
+    "connectionType": "local",
+    "dataSource": "push",
+    "connectionIndicator": "yes",
+    "language": "TypeScript",
+    "nodeVersion": "20",
+    "adminUi": "json",
+    "tools": [
+        "ESLint",
+        "type checking",
+        "Prettier"
+    ],
+    "eslintConfig": "official",
+    "i18n": "JSON",
+    "releaseScript": "yes",
+    "devServer": "no",
+    "indentation": "Space (4)",
+    "quotes": "single",
+    "gitRemoteProtocol": "HTTPS",
+    "gitCommit": "no",
+    "defaultBranch": "main",
+    "authorName": "Alan Paris",
+    "authorEmail": "alan.paris@scottish.rugby",
+    "authorGithub": "AlanSRU",
+    "license": "MIT License",
+    "dependabot": "no",
+    "creatorVersion": "3.1.5"
+}

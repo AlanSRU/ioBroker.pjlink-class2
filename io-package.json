@@ -1,0 +1,125 @@
+{
+    "common": {
+        "name": "pjlink-class2",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "uk": "Початкова версія",
+                "zh-cn": "首次出版"
+            }
+        },
+        "titleLang": {
+            "en": "PJLink Class 2",
+            "de": "PJLink Klasse 2",
+            "ru": "PJLink Класс 2",
+            "pt": "PJLink Classe 2",
+            "nl": "PJLink-klasse 2",
+            "fr": "PJLink Classe 2",
+            "it": "PJLink Classe 2",
+            "es": "PJLink Clase 2",
+            "pl": "PJLink klasy 2",
+            "uk": "PJLink Клас 2",
+            "zh-cn": "PJLink 2 类"
+        },
+        "desc": {
+            "en": "Control projectors and displays via PJLink Class 1 and Class 2 (TCP/UDP 4352): power, input, mute, freeze, volume, lamp/filter/error status, search and status notifications.",
+            "de": "Steuern Sie Projektoren und Displays über PJLink Klasse 1 und Klasse 2 (TCP/UDP 4352): Stromversorgung, Eingang, Stummschaltung, Einfrieren, Lautstärke, Lampen-/Filter-/Fehlerstatus, Suche und Statusbenachrichtigungen.",
+            "ru": "Управляйте проекторами и дисплеями через PJLink класса 1 и класса 2 (TCP/UDP 4352): питание, вход, отключение звука, стоп-кадр, громкость, состояние лампы/фильтра/ошибки, поиск и уведомления о состоянии.",
+            "pt": "Controle projetores e monitores via PJLink Classe 1 e Classe 2 (TCP/UDP 4352): alimentação, entrada, mudo, congelamento, volume, status da lâmpada/filtro/erro, pesquisa e notificações de status.",
+            "nl": "Bedien projectoren en displays via PJLink Klasse 1 en Klasse 2 (TCP/UDP 4352): voeding, invoer, dempen, bevriezen, volume, lamp/filter/foutstatus, zoeken en statusmeldingen.",
+            "fr": "Contrôlez les projecteurs et les écrans via PJLink Classe 1 et Classe 2 (TCP/UDP 4352) : alimentation, entrée, sourdine, gel, volume, état de la lampe/filtre/erreur, recherche et notifications d'état.",
+            "it": "Controlla proiettori e display tramite PJLink Classe 1 e Classe 2 (TCP/UDP 4352): alimentazione, ingresso, disattivazione audio, blocco, volume, stato lampada/filtro/errore, ricerca e notifiche di stato.",
+            "es": "Controle proyectores y pantallas a través de PJLink Clase 1 y Clase 2 (TCP/UDP 4352): encendido, entrada, silencio, congelación, volumen, lámpara/filtro/estado de error, búsqueda y notificaciones de estado.",
+            "pl": "Sterowanie projektorami i wyświetlaczami poprzez PJLink klasy 1 i klasy 2 (TCP/UDP 4352): zasilanie, wejście, wyciszenie, zawieszenie, głośność, stan lampy/filtra/błędu, wyszukiwanie i powiadomienia o stanie.",
+            "uk": "Керуйте проекторами та дисплеями через PJLink Class 1 і Class 2 (TCP/UDP 4352): живлення, вхід, вимкнення звуку, заморожування, гучність, статус лампи/фільтра/помилки, пошук і сповіщення про стан.",
+            "zh-cn": "通过 PJLink Class 1 和 Class 2 (TCP/UDP 4352) 控制投影仪和显示器：电源、输入、静音、冻结、音量、灯泡/过滤器/错误状态、搜索和状态通知。"
+        },
+        "authors": [
+            "Alan Paris <alan.paris@scottish.rugby>"
+        ],
+        "keywords": [
+            "pjlink",
+            "projector",
+            "class2",
+            "display",
+            "av"
+        ],
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },
+        "platform": "Javascript/Node.js",
+        "icon": "pjlink-class2.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/AlanSRU/ioBroker.pjlink-class2/main/admin/pjlink-class2.png",
+        "readme": "https://github.com/AlanSRU/ioBroker.pjlink-class2/blob/main/README.md",
+        "loglevel": "info",
+        "tier": 3,
+        "mode": "daemon",
+        "type": "multimedia",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "push",
+        "adminUI": {
+            "config": "json"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=6.0.11"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=7.0.23"
+            }
+        ],
+        "messagebox": true
+    },
+    "native": {
+        "devices": [],
+        "password": "",
+        "pollInterval": 5,
+        "infoInterval": 300,
+        "notifications": true,
+        "broadcastAddress": "255.255.255.255"
+    },
+    "encryptedNative": [
+        "password"
+    ],
+    "protectedNative": [
+        "password"
+    ],
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}

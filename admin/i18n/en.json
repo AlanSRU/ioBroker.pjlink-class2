@@ -1,0 +1,22 @@
+{
+    "Projectors": "Projectors",
+    "Active": "Active",
+    "Name": "Name",
+    "IP address or host name": "IP address or host name",
+    "Port": "Port",
+    "devicesHint": "One row per projector. The name becomes the object-tree folder (pjlink-class2.0.<name>.control.power); leave it empty to use the host. Class 1 and Class 2 projectors are detected automatically.",
+    "PJLink password": "PJLink password",
+    "passwordHelp": "Used for every projector that asks for PJLink authentication; leave empty if authentication is off",
+    "Search for projectors": "Search for projectors",
+    "searchHint": "Broadcasts a PJLink Class 2 search and adds every projector that answers to the table. Class 1 projectors do not answer and must be added by hand, and broadcasts do not cross routers. Save pending changes first: found projectors are merged into the saved list.",
+    "Search": "Search",
+    "Options": "Options",
+    "Status poll interval (s)": "Status poll interval (s)",
+    "pollIntervalHelp": "How often power, input, mute and error status are read",
+    "Information poll interval (s)": "Information poll interval (s)",
+    "infoIntervalHelp": "How often names, inputs, lamp hours and other slow-changing values are read",
+    "Listen on UDP 4352 (Class 2 notifications and search)": "Listen on UDP 4352 (Class 2 notifications and search)",
+    "notificationsHelp": "Only one program per host can listen on this port",
+    "Search broadcast addresses": "Search broadcast addresses",
+    "broadcastHelp": "Comma separated, e.g. 192.168.254.255 for a directed broadcast to one subnet"
+}

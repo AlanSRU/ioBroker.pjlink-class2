@@ -1,0 +1,22 @@
+{
+    "Active": "Activo",
+    "IP address or host name": "Dirección IP o nombre de host",
+    "Information poll interval (s)": "Intervalo(s) de encuesta de información",
+    "Listen on UDP 4352 (Class 2 notifications and search)": "Escuche en UDP 4352 (notificaciones y búsqueda de clase 2)",
+    "Name": "Nombre",
+    "Options": "Opciones",
+    "PJLink password": "Contraseña de PJLink",
+    "Port": "Puerto",
+    "Projectors": "Proyectores",
+    "Search": "Buscar",
+    "Search broadcast addresses": "Buscar direcciones de transmisión",
+    "Search for projectors": "Buscar proyectores",
+    "Status poll interval (s)": "Intervalo(s) de sondeo de estado",
+    "broadcastHelp": "Separados por comas, p.e. 192.168.254.255 para una transmisión dirigida a una subred",
+    "devicesHint": "Una fila por proyector. El nombre se convierte en la carpeta del árbol de objetos (pjlink-class2.0.<nombre>.control.power); déjelo vacío para usar el host. Los proyectores de Clase 1 y Clase 2 se detectan automáticamente.",
+    "infoIntervalHelp": "Con qué frecuencia se leen nombres, entradas, horas de lámpara y otros valores que cambian lentamente",
+    "notificationsHelp": "Sólo un programa por host puede escuchar en este puerto",
+    "passwordHelp": "Se utiliza para todos los proyectores que solicitan autenticación PJLink; dejar vacío si la autenticación está desactivada",
+    "pollIntervalHelp": "Con qué frecuencia se leen los estados de alimentación, entrada, silencio y error",
+    "searchHint": "Transmite una búsqueda PJLink Clase 2 y agrega todos los proyectores que responden a la mesa. Los proyectores de clase 1 no responden y deben agregarse manualmente, y las transmisiones no cruzan enrutadores. Guarde primero los cambios pendientes: los proyectores encontrados se fusionan en la lista guardada."
+}

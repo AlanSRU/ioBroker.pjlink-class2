@@ -1,0 +1,173 @@
+{
+    "i18n": true,
+    "type": "tabs",
+    "items": {
+        "projectorsTab": {
+            "type": "panel",
+            "label": "Projectors",
+            "items": {
+                "devicesHint": {
+                    "type": "staticText",
+                    "text": "devicesHint",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "devices": {
+                    "type": "table",
+                    "label": "Projectors",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12,
+                    "clone": true,
+                    "export": true,
+                    "import": true,
+                    "items": [
+                        {
+                            "type": "checkbox",
+                            "attr": "enabled",
+                            "title": "Active",
+                            "width": "10%",
+                            "default": true
+                        },
+                        {
+                            "type": "text",
+                            "attr": "name",
+                            "title": "Name",
+                            "width": "35%",
+                            "default": "",
+                            "sort": true
+                        },
+                        {
+                            "type": "text",
+                            "attr": "host",
+                            "title": "IP address or host name",
+                            "width": "40%",
+                            "default": ""
+                        },
+                        {
+                            "type": "number",
+                            "attr": "port",
+                            "title": "Port",
+                            "width": "15%",
+                            "min": 1,
+                            "max": 65535,
+                            "default": 4352
+                        }
+                    ]
+                },
+                "password": {
+                    "type": "password",
+                    "label": "PJLink password",
+                    "help": "passwordHelp",
+                    "repeat": false,
+                    "visible": true,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "searchHeader": {
+                    "type": "header",
+                    "text": "Search for projectors",
+                    "size": 2,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "searchHint": {
+                    "type": "staticText",
+                    "text": "searchHint",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "searchButton": {
+                    "type": "sendTo",
+                    "label": "Search",
+                    "command": "discover",
+                    "icon": "search",
+                    "variant": "contained",
+                    "useNative": true,
+                    "showProcess": true,
+                    "timeout": 60000,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
+                }
+            }
+        },
+        "optionsTab": {
+            "type": "panel",
+            "label": "Options",
+            "items": {
+                "pollInterval": {
+                    "type": "number",
+                    "label": "Status poll interval (s)",
+                    "help": "pollIntervalHelp",
+                    "min": 1,
+                    "default": 5,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
+                },
+                "infoInterval": {
+                    "type": "number",
+                    "label": "Information poll interval (s)",
+                    "help": "infoIntervalHelp",
+                    "min": 10,
+                    "default": 300,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
+                },
+                "notifications": {
+                    "type": "checkbox",
+                    "label": "Listen on UDP 4352 (Class 2 notifications and search)",
+                    "help": "notificationsHelp",
+                    "default": true,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 8,
+                    "lg": 6,
+                    "xl": 6
+                },
+                "broadcastAddress": {
+                    "type": "text",
+                    "label": "Search broadcast addresses",
+                    "help": "broadcastHelp",
+                    "default": "255.255.255.255",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 8,
+                    "lg": 6,
+                    "xl": 6
+                }
+            }
+        }
+    }
+}
