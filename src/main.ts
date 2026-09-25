@@ -286,7 +286,7 @@ class PjlinkClass2 extends utils.Adapter {
      * @param p - the projector
      */
     private async createBaseObjects(p: Projector): Promise<void> {
-        await this.extendObjectAsync(p.id, { type: 'device', common: { name: p.label }, native: {} });
+        await this.extendObject(p.id, { type: 'device', common: { name: p.label }, native: {} });
         await this.createChannelObject(`${p.id}.info`, 'Information');
         await this.createChannelObject(`${p.id}.control`, 'Control');
         await this.createChannelObject(`${p.id}.status`, 'Status');
@@ -637,7 +637,7 @@ class PjlinkClass2 extends utils.Adapter {
             }
             if (inputs.join() !== p.inputs.join()) {
                 p.inputs = inputs;
-                await this.extendObjectAsync(`${p.id}.control.input`, { common: { states: names } });
+                await this.extendObject(`${p.id}.control.input`, { common: { states: names } });
             }
             updates.push(['info.inputs', JSON.stringify(names)]);
         }

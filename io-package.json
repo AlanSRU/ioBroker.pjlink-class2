@@ -73,7 +73,7 @@
         "type": "multimedia",
         "compact": true,
         "connectionType": "local",
-        "dataSource": "push",
+        "dataSource": "poll",
         "adminUI": {
             "config": "json"
         },
@@ -87,7 +87,10 @@
                 "admin": ">=7.6.20"
             }
         ],
-        "messagebox": true
+        "messagebox": true,
+        "supportedMessages": {
+            "custom": true
+        }
     },
     "native": {
         "devices": [],
