@@ -1,6 +1,6 @@
 {
   "name": "iobroker.pjlink-class2",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Control projectors and displays via PJLink Class 1 and Class 2 (TCP/UDP 4352): power, input, mute, freeze, volume, lamp/filter/error status, search and status notifications.",
   "author": {
     "name": "Alan Paris",

@@ -1,20 +1,20 @@
 {
     "common": {
         "name": "pjlink-class2",
-        "version": "0.0.1",
+        "version": "0.1.0",
         "news": {
-            "0.0.1": {
+            "0.1.0": {
                 "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "uk": "Початкова версія",
-                "zh-cn": "首次出版"
+                "de": "erste Version",
+                "ru": "первоначальный релиз",
+                "pt": "versão inicial",
+                "nl": "eerste uitgave",
+                "fr": "sortie initiale",
+                "it": "prima versione",
+                "es": "versión inicial",
+                "pl": "wstępne wydanie",
+                "uk": "первинний випуск",
+                "zh-cn": "初始版本"
             }
         },
         "titleLang": {
@@ -43,16 +43,8 @@
             "uk": "Керуйте проекторами та дисплеями через PJLink Class 1 і Class 2 (TCP/UDP 4352): живлення, вхід, вимкнення звуку, заморожування, гучність, статус лампи/фільтра/помилки, пошук і сповіщення про стан.",
             "zh-cn": "通过 PJLink Class 1 和 Class 2 (TCP/UDP 4352) 控制投影仪和显示器：电源、输入、静音、冻结、音量、灯泡/过滤器/错误状态、搜索和状态通知。"
         },
-        "authors": [
-            "Alan Paris <alan.paris@scottish.rugby>"
-        ],
-        "keywords": [
-            "pjlink",
-            "projector",
-            "class2",
-            "display",
-            "av"
-        ],
+        "authors": ["Alan Paris <alan.paris@scottish.rugby>"],
+        "keywords": ["pjlink", "projector", "class2", "display", "av"],
         "licenseInformation": {
             "type": "free",
             "license": "MIT"
@@ -92,12 +84,8 @@
         "notifications": true,
         "broadcastAddress": "255.255.255.255"
     },
-    "encryptedNative": [
-        "password"
-    ],
-    "protectedNative": [
-        "password"
-    ],
+    "encryptedNative": ["password"],
+    "protectedNative": ["password"],
     "objects": [],
     "instanceObjects": [
         {
