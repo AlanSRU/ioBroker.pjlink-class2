@@ -889,7 +889,18 @@ class PjlinkClass2 extends utils.Adapter {
         const hits = await this.udp.search(broadcast, SEARCH_WAIT_MS, ms => this.delay(ms));
 
         const devices = [...((this.config.devices ?? []) as unknown as DeviceConfig[])];
-        const known = new Set(devices.map(d => (d.host || '').trim()));
+        // every configured row, enabled or not, by host and by address (search replies carry the IP)
+        const known = new Set<string>();
+        for (const d of devices) {
+            const host = (d.host || '').trim();
+            known.add(host);
+            if (host && !isIP(host)) {
+                await lookup(host, { family: 4 }).then(
+                    r => known.add(r.address),
+                    () => undefined,
+                );
+            }
+        }
         for (const p of this.projectors.values()) {
             known.add(p.address);
         }

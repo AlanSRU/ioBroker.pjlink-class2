@@ -1,22 +1,22 @@
 {
     "Active": "Attivo",
+    "Broadcast addresses used by the search": "Indirizzi broadcast utilizzati dalla ricerca",
     "IP address or host name": "Indirizzo IP o nome host",
     "Information poll interval (s)": "Intervallo di sondaggio delle informazioni (s)",
-    "Listen on UDP 4352 (Class 2 notifications and search)": "Ascolta su UDP 4352 (notifiche e ricerca di classe 2)",
     "Name": "Nome",
     "Options": "Opzioni",
     "PJLink password": "Password PJLink",
     "Port": "Porta",
     "Projectors": "Proiettori",
     "Search": "Ricerca",
-    "Search broadcast addresses": "Cerca indirizzi di trasmissione",
     "Search for projectors": "Cerca proiettori",
     "Status poll interval (s)": "Intervallo di polling dello stato (s)",
+    "UDP 4352 listener for Class 2 notifications and search": "Ascoltatore UDP 4352 per notifiche e ricerche di Classe 2",
     "broadcastHelp": "Separati da virgole, ad es. 192.168.254.255 per una trasmissione diretta su una sottorete",
     "devicesHint": "Una fila per proiettore. Il nome diventa la cartella dell'albero degli oggetti (pjlink-class2.0.<nome>.control.power); lasciarlo vuoto per utilizzare l'host. I proiettori di Classe 1 e Classe 2 vengono rilevati automaticamente.",
     "infoIntervalHelp": "La frequenza con cui vengono letti nomi, ingressi, ore della lampada e altri valori che cambiano lentamente",
     "notificationsHelp": "Su questa porta può essere in ascolto solo un programma per host",
     "passwordHelp": "Utilizzato per ogni proiettore che richiede l'autenticazione PJLink; lasciare vuoto se l'autenticazione è disattivata",
     "pollIntervalHelp": "La frequenza con cui vengono letti l'alimentazione, l'ingresso, il mute e lo stato di errore",
-    "searchHint": "Trasmette una ricerca PJLink Classe 2 e aggiunge tutti i proiettori che rispondono alla tabella. I proiettori di classe 1 non rispondono e devono essere aggiunti manualmente e le trasmissioni non attraversano i router. Salva prima le modifiche in sospeso: i proiettori trovati vengono uniti nell'elenco salvato."
+    "searchHint": "Il pulsante Cerca trasmette una ricerca PJLink Classe 2. Ogni proiettore che risponde viene aggiunto all'elenco dei proiettori. I proiettori di Classe 1 non rispondono e devono essere aggiunti manualmente e le trasmissioni non attraversano i router. Salva prima le modifiche in sospeso: i proiettori trovati vengono uniti nell'elenco salvato."
 }

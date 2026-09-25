@@ -1,22 +1,22 @@
 {
     "Active": "Actif",
+    "Broadcast addresses used by the search": "Adresses de diffusion utilisées par la recherche",
     "IP address or host name": "Adresse IP ou nom d'hôte",
     "Information poll interval (s)": "Intervalle(s) d'interrogation des informations",
-    "Listen on UDP 4352 (Class 2 notifications and search)": "Écouter sur UDP 4352 (notifications et recherche de classe 2)",
     "Name": "Nom",
     "Options": "Options",
     "PJLink password": "Mot de passe PJLink",
     "Port": "Port",
     "Projectors": "Projecteurs",
     "Search": "Recherche",
-    "Search broadcast addresses": "Rechercher des adresses de diffusion",
     "Search for projectors": "Rechercher des projecteurs",
     "Status poll interval (s)": "Intervalle(s) d'interrogation d'état",
+    "UDP 4352 listener for Class 2 notifications and search": "Écouteur UDP 4352 pour les notifications et la recherche de classe 2",
     "broadcastHelp": "Séparés par des virgules, par ex. 192.168.254.255 pour une diffusion dirigée vers un sous-réseau",
     "devicesHint": "Une rangée par projecteur. Le nom devient le dossier de l'arborescence des objets (pjlink-class2.0.<name>.control.power) ; laissez-le vide pour utiliser l'hôte. Les projecteurs de classe 1 et classe 2 sont détectés automatiquement.",
     "infoIntervalHelp": "À quelle fréquence les noms, entrées, heures de lampe et autres valeurs à évolution lente sont lus",
     "notificationsHelp": "Un seul programme par hôte peut écouter sur ce port",
     "passwordHelp": "Utilisé pour chaque projecteur qui demande une authentification PJLink ; laisser vide si l'authentification est désactivée",
     "pollIntervalHelp": "À quelle fréquence l'état d'alimentation, d'entrée, de sourdine et d'erreur est lu",
-    "searchHint": "Diffuse une recherche PJLink Classe 2 et ajoute chaque projecteur qui répond au tableau. Les projecteurs de classe 1 ne répondent pas et doivent être ajoutés à la main, et les diffusions ne traversent pas les routeurs. Enregistrez d'abord les modifications en attente : les projecteurs trouvés sont fusionnés dans la liste enregistrée."
+    "searchHint": "Le bouton Rechercher diffuse une recherche PJLink Classe 2. Chaque projecteur qui répond est ajouté à la liste des projecteurs. Les projecteurs de classe 1 ne répondent pas et doivent être ajoutés manuellement, et les diffusions ne traversent pas les routeurs. Enregistrez d'abord les modifications en attente : les projecteurs trouvés sont fusionnés dans la liste enregistrée."
 }

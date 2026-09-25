@@ -1,22 +1,22 @@
 {
     "Active": "Ativo",
+    "Broadcast addresses used by the search": "Endereços de transmissão usados pela pesquisa",
     "IP address or host name": "Endereço IP ou nome do host",
     "Information poll interval (s)": "Intervalo(s) de pesquisa de informações",
-    "Listen on UDP 4352 (Class 2 notifications and search)": "Ouça em UDP 4352 (notificações e pesquisa de classe 2)",
     "Name": "Nome",
     "Options": "Opções",
     "PJLink password": "Senha PJLink",
     "Port": "Porta",
     "Projectors": "Projetores",
     "Search": "Procurar",
-    "Search broadcast addresses": "Pesquisar endereços de transmissão",
     "Search for projectors": "Procure projetores",
     "Status poll interval (s)": "Intervalo(s) de pesquisa de status",
+    "UDP 4352 listener for Class 2 notifications and search": "Ouvinte UDP 4352 para notificações e pesquisa de Classe 2",
     "broadcastHelp": "Separados por vírgula, por ex. 192.168.254.255 para uma transmissão direcionada para uma sub-rede",
     "devicesHint": "Uma linha por projetor. O nome se torna a pasta da árvore de objetos (pjlink-class2.0.<nome>.control.power); deixe-o vazio para usar o host. Os projetores Classe 1 e Classe 2 são detectados automaticamente.",
     "infoIntervalHelp": "Com que frequência são lidos nomes, entradas, horas de lâmpada e outros valores de mudança lenta",
     "notificationsHelp": "Apenas um programa por host pode escutar nesta porta",
     "passwordHelp": "Usado para todos os projetores que solicitam autenticação PJLink; deixe em branco se a autenticação estiver desativada",
     "pollIntervalHelp": "Com que frequência os status de energia, entrada, mudo e erro são lidos",
-    "searchHint": "Transmite uma pesquisa PJLink Classe 2 e adiciona todos os projetores que respondem à mesa. Os projetores Classe 1 não respondem e devem ser adicionados manualmente, e as transmissões não cruzam roteadores. Salve primeiro as alterações pendentes: os projetores encontrados são mesclados na lista salva."
+    "searchHint": "O botão Pesquisar transmite uma pesquisa PJLink Classe 2. Cada projetor que responde é adicionado à lista de projetores. Os projetores Classe 1 não respondem e devem ser adicionados manualmente, e as transmissões não cruzam roteadores. Salve primeiro as alterações pendentes: os projetores encontrados são mesclados na lista salva."
 }

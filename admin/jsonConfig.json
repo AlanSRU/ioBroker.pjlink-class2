@@ -147,7 +147,7 @@
                 },
                 "notifications": {
                     "type": "checkbox",
-                    "label": "Listen on UDP 4352 (Class 2 notifications and search)",
+                    "label": "UDP 4352 listener for Class 2 notifications and search",
                     "help": "notificationsHelp",
                     "default": true,
                     "newLine": true,
@@ -159,7 +159,7 @@
                 },
                 "broadcastAddress": {
                     "type": "text",
-                    "label": "Search broadcast addresses",
+                    "label": "Broadcast addresses used by the search",
                     "help": "broadcastHelp",
                     "default": "255.255.255.255",
                     "newLine": true,

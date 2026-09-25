@@ -769,7 +769,17 @@ class PjlinkClass2 extends utils.Adapter {
     this.log.info(`Searching for PJLink Class 2 projectors via ${broadcast.join(", ")}...`);
     const hits = await this.udp.search(broadcast, SEARCH_WAIT_MS, (ms) => this.delay(ms));
     const devices = [...(_a = this.config.devices) != null ? _a : []];
-    const known = new Set(devices.map((d) => (d.host || "").trim()));
+    const known = /* @__PURE__ */ new Set();
+    for (const d of devices) {
+      const host = (d.host || "").trim();
+      known.add(host);
+      if (host && !(0, import_node_net.isIP)(host)) {
+        await (0, import_promises.lookup)(host, { family: 4 }).then(
+          (r) => known.add(r.address),
+          () => void 0
+        );
+      }
+    }
     for (const p of this.projectors.values()) {
       known.add(p.address);
     }

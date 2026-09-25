@@ -1,22 +1,22 @@
 {
     "Active": "Aktywny",
+    "Broadcast addresses used by the search": "Adresy rozgłoszeniowe używane podczas wyszukiwania",
     "IP address or host name": "Adres IP lub nazwa hosta",
     "Information poll interval (s)": "Interwał sondowania informacji",
-    "Listen on UDP 4352 (Class 2 notifications and search)": "Słuchaj na UDP 4352 (powiadomienia i wyszukiwanie klasy 2)",
     "Name": "Nazwa",
     "Options": "Opcje",
     "PJLink password": "Hasło PJLinka",
     "Port": "Port",
     "Projectors": "Projektory",
     "Search": "Szukaj",
-    "Search broadcast addresses": "Wyszukaj adresy transmisji",
     "Search for projectors": "Wyszukaj projektory",
     "Status poll interval (s)": "Interwał sondowania stanu (s)",
+    "UDP 4352 listener for Class 2 notifications and search": "Odbiornik UDP 4352 dla powiadomień i wyszukiwania klasy 2",
     "broadcastHelp": "Oddzielone przecinkami, np. 192.168.254.255 dla emisji skierowanej do jednej podsieci",
     "devicesHint": "Jeden rząd na projektor. Nazwa staje się folderem drzewa obiektów (pjlink-class2.0.<nazwa>.control.power); pozostaw to pole puste, aby móc korzystać z hosta. Projektory klasy 1 i klasy 2 są wykrywane automatycznie.",
     "infoIntervalHelp": "Jak często odczytywane są nazwy, wejścia, godziny pracy lampy i inne wolno zmieniające się wartości",
     "notificationsHelp": "Na tym porcie może nasłuchiwać tylko jeden program na host",
     "passwordHelp": "Używany w przypadku każdego projektora żądającego uwierzytelnienia PJLink; pozostaw puste, jeśli uwierzytelnianie jest wyłączone",
     "pollIntervalHelp": "Jak często odczytywany jest stan zasilania, wejścia, wyciszenia i błędu",
-    "searchHint": "Rozgłasza wyszukiwanie PJLink klasy 2 i dodaje do tabeli każdy projektor, który odpowiada. Projektory klasy 1 nie odpowiadają i należy je dodać ręcznie, a transmisje nie przechodzą przez routery. Najpierw zapisz oczekujące zmiany: znalezione projektory zostaną scalone z zapisaną listą."
+    "searchHint": "Przycisk Szukaj rozgłasza wyszukiwanie PJLink klasy 2. Każdy projektor, który odpowie, zostanie dodany do listy projektorów. Projektory klasy 1 nie odpowiadają i należy je dodać ręcznie, a transmisje nie przechodzą przez routery. Najpierw zapisz oczekujące zmiany: znalezione projektory zostaną scalone z zapisaną listą."
 }
