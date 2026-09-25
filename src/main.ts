@@ -35,6 +35,9 @@ const RESERVED_IDS = ['info'];
 /** How long a power command may go unconfirmed before control.power follows the projector again. */
 const POWER_CONFIRM_MS = 30_000;
 
+/** Unanswered polls after which a Class 2 query counts as unsupported (one could be a stall). */
+const SILENT_LIMIT = 3;
+
 /** How long a search collects answers. */
 const SEARCH_WAIT_MS = 10_000;
 
@@ -70,6 +73,8 @@ interface Projector {
     cls: number;
     /** commands answered with ERR1, not asked again */
     unsupported: Set<string>;
+    /** Class 2 queries that went unanswered, and how many polls in a row */
+    silent: Map<string, number>;
     inputs: string[];
     lampCount: number;
     connected: boolean;
@@ -89,7 +94,11 @@ type Updates = [string, ioBroker.StateValue][];
 
 class PjlinkClass2 extends utils.Adapter {
     private projectors = new Map<string, Projector>();
+    /** ids of disabled projectors, whose objects are kept */
+    private disabledIds = new Set<string>();
     private udp?: PjlinkUdp;
+    /** set first thing in onUnload, so a still-running onReady stops before opening resources */
+    private stopped = false;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
@@ -113,19 +122,26 @@ class PjlinkClass2 extends utils.Adapter {
         for (const p of this.projectors.values()) {
             await this.createBaseObjects(p);
         }
+        if (this.stopped) {
+            return;
+        }
         this.subscribeStates('*');
 
         if (this.config.notifications) {
-            this.udp = new PjlinkUdp(n => void this.onNotification(n));
+            const udp = new PjlinkUdp(n => void this.onNotification(n));
             try {
-                await this.udp.open();
+                await udp.open();
+                if (this.stopped) {
+                    udp.close(); // stopped while binding: do not leave the port taken
+                    return;
+                }
+                this.udp = udp;
                 this.log.info('Listening for PJLink Class 2 notifications and search replies on UDP 4352');
             } catch (error) {
                 this.log.warn(
                     `Cannot listen on UDP 4352 (${(error as Error).message}); Class 2 notifications and search ` +
                         `are disabled, polling continues. Is another PJLink controller or instance running on this host?`,
                 );
-                this.udp = undefined;
             }
         }
 
@@ -133,7 +149,7 @@ class PjlinkClass2 extends utils.Adapter {
             this.log.warn('No projectors configured — open the instance settings and add at least one.');
             return;
         }
-        const interval = Math.max(1, Number(this.config.pollInterval) || 5) * 1000;
+        const interval = Math.min(3600, Math.max(1, Number(this.config.pollInterval) || 5)) * 1000;
         let stagger = 0;
         for (const p of this.projectors.values()) {
             // spread the projectors out so they are not polled in one burst
@@ -148,15 +164,17 @@ class PjlinkClass2 extends utils.Adapter {
         const devices = (this.config.devices ?? []) as unknown as DeviceConfig[];
         for (const device of devices) {
             const host = (device.host || '').trim();
-            if (device.enabled === false) {
-                continue;
-            }
             if (!host) {
                 this.log.warn(`Ignoring projector "${device.name || '(unnamed)'}": no host configured.`);
                 continue;
             }
             const label = (device.name || '').trim() || host;
             const id = this.makeId(label);
+            if (device.enabled === false) {
+                // keep its objects (and their history/alias settings) for when it is re-enabled
+                this.disabledIds.add(id);
+                continue;
+            }
             const port = Number(device.port) || 4352;
             let address = host;
             if (!isIP(host)) {
@@ -173,6 +191,7 @@ class PjlinkClass2 extends utils.Adapter {
                 client: new PjlinkClient({ host, port, password: this.config.password }),
                 cls: 0,
                 unsupported: new Set(),
+                silent: new Map(),
                 inputs: [],
                 lampCount: 0,
                 connected: false,
@@ -196,7 +215,7 @@ class PjlinkClass2 extends utils.Adapter {
                 .replace(/[^a-z0-9_-]/g, '_')
                 .replace(/^_+|_+$/g, '') || 'projector';
         let id = RESERVED_IDS.includes(base) ? `${base}_projector` : base;
-        for (let suffix = 2; this.projectors.has(id); suffix++) {
+        for (let suffix = 2; this.projectors.has(id) || this.disabledIds.has(id); suffix++) {
             id = `${base}_${suffix}`;
         }
         return id;
@@ -206,7 +225,7 @@ class PjlinkClass2 extends utils.Adapter {
     private async removeStaleObjects(): Promise<void> {
         for (const obj of await this.getDevicesAsync()) {
             const id = obj._id.substring(this.namespace.length + 1);
-            if (!id.includes('.') && !this.projectors.has(id)) {
+            if (!id.includes('.') && !this.projectors.has(id) && !this.disabledIds.has(id)) {
                 this.log.info(`Removing objects of projector "${id}", which is no longer configured.`);
                 await this.delObjectAsync(id, { recursive: true });
             }
@@ -217,10 +236,24 @@ class PjlinkClass2 extends utils.Adapter {
         await this.setObjectNotExistsAsync(id, { type: 'channel', common: { name }, native: {} });
     }
 
+    /**
+     * Create a state. Strings default to '' and booleans to false. Number states get no default
+     * on purpose: 0 would read as a real value (power Off, error status OK, 0 lamp hours) for a
+     * projector that has not answered yet.
+     *
+     * @param id - state id
+     * @param common - common part of the object
+     */
     private async createStateObject(id: string, common: Partial<ioBroker.StateCommon>): Promise<void> {
+        const def = common.type === 'string' ? '' : common.type === 'boolean' ? false : undefined;
         await this.setObjectNotExistsAsync(id, {
             type: 'state',
-            common: { read: true, write: false, ...common } as ioBroker.StateCommon,
+            common: {
+                read: true,
+                write: false,
+                ...(def === undefined ? {} : { def }),
+                ...common,
+            } as ioBroker.StateCommon,
             native: {},
         });
     }
@@ -408,12 +441,22 @@ class PjlinkClass2 extends utils.Adapter {
             return undefined;
         }
         try {
-            return await s.send(cls, command, param);
+            const value = await s.send(cls, command, param);
+            p.silent.delete(key);
+            return value;
         } catch (error) {
             if (error instanceof ReplyTimeoutError && cls === 2) {
-                // seen on an NEC NP3250 (Class 1): Class 2 commands get no answer at all, not ERR1
-                this.log.info(`[${p.label}] did not answer %2${command}; not asking again`);
-                p.unsupported.add(key);
+                // Some projectors ignore Class 2 commands they lack instead of answering ERR1 (an NEC
+                // NP3250 ignores all of them). A single timeout may also be a stall, so give up only
+                // after SILENT_LIMIT polls in a row; a dead projector fails the next command anyway.
+                const count = (p.silent.get(key) ?? 0) + 1;
+                p.silent.set(key, count);
+                if (count >= SILENT_LIMIT) {
+                    this.log.info(`[${p.label}] did not answer %2${command} ${count} times; not asking again`);
+                    p.unsupported.add(key);
+                } else {
+                    this.log.debug(`[${p.label}] no answer to %2${command} (${count}/${SILENT_LIMIT})`);
+                }
                 return undefined;
             }
             if (!(error instanceof PjlinkError) || error.code === 'ERRA') {
@@ -490,7 +533,7 @@ class PjlinkClass2 extends utils.Adapter {
                 }
             });
             if (full) {
-                p.nextInfo = Date.now() + Math.max(10, Number(this.config.infoInterval) || 300) * 1000;
+                p.nextInfo = Date.now() + Math.min(86400, Math.max(10, Number(this.config.infoInterval) || 300)) * 1000;
             }
             for (const [id, val] of updates) {
                 await this.setState(`${p.id}.${id}`, { val, ack: true });
@@ -759,7 +802,9 @@ class PjlinkClass2 extends utils.Adapter {
 
         try {
             await p.client.send(...request);
-            if (key === 'control.power') {
+            const isOn = p.powerStatus === PowerStatus.ON || p.powerStatus === PowerStatus.WARMING;
+            // no hold when the projector is already where it was asked to go (nothing will change)
+            if (key === 'control.power' && p.powerStatus !== undefined && isOn !== Boolean(state.val)) {
                 p.pendingPower = {
                     on: Boolean(state.val),
                     fromStatus: p.powerStatus ?? -1,
@@ -851,6 +896,7 @@ class PjlinkClass2 extends utils.Adapter {
      * @param callback - Callback function
      */
     private onUnload(callback: () => void): void {
+        this.stopped = true;
         try {
             for (const p of this.projectors.values()) {
                 if (p.pollTimer) {

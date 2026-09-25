@@ -129,7 +129,8 @@
                     "sm": 12,
                     "md": 4,
                     "lg": 3,
-                    "xl": 3
+                    "xl": 3,
+                    "max": 3600
                 },
                 "infoInterval": {
                     "type": "number",
@@ -141,7 +142,8 @@
                     "sm": 12,
                     "md": 4,
                     "lg": 3,
-                    "xl": 3
+                    "xl": 3,
+                    "max": 86400
                 },
                 "notifications": {
                     "type": "checkbox",

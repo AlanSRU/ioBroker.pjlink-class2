@@ -219,7 +219,6 @@ class PjlinkClient {
         prefix = authDigest((_a = auth[2]) != null ? _a : "", this.password, algorithm);
       }
       const session = {
-        authenticated: auth[1] === "1",
         send: async (cls, command, param) => {
           const request = `%${cls}${command} ${param}`;
           socket.write(`${prefix}${request}\r`);

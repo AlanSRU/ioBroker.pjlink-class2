@@ -93,7 +93,7 @@ npx ts-node test/lib/simulator.ts 4353 2 secret   # port, class, password
 ## Disclaimer
 
 PJLink is a trademark of the Japan Business Machine and Information System Industries
-Association (JBMIA). This adapter is not affiliated with or endorsed by JBMIA.
+Association (JBMIA); see the [PJLink website](https://pjlink.jbmia.or.jp/english/). This adapter is not affiliated with or endorsed by JBMIA.
 
 ## Changelog
 <!--

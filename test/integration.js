@@ -70,7 +70,8 @@ tests.integration(path.join(__dirname, '..'), {
                 expect(await waitFor('sim_1.status.lamps.1.hours', v => v === 1163)).to.equal(1163);
                 // FILT is asked after the ignored RRES
                 expect(await waitFor('sim_1.status.filterHours', v => v === 250, 15000)).to.equal(250);
-                expect(harness.hasLog(/did not answer %2RRES/, 'info')).to.equal(true);
+                // one unanswered poll is not enough to give up on it
+                expect(harness.hasLog(/no answer to %2RRES \(1\/3\)/, 'debug')).to.equal(true);
                 expect(await waitFor('sim_1.status.power', v => v === 0)).to.equal(0);
                 const input = await getObject('sim_1.control.input');
                 expect(input.common.states).to.include({ 31: 'HDMI 1 (Digital 1)' });

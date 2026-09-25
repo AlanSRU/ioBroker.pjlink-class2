@@ -211,8 +211,6 @@ export function inputLabel(code: string): string {
 
 /** An open PJLink connection, handed to a session callback. */
 export interface PjlinkSession {
-    /** Whether the projector demanded authentication ("PJLINK 1"). */
-    readonly authenticated: boolean;
     /**
      * Send a command and resolve with the reply value. Rejects with a
      * PjlinkError on an ERR reply.
@@ -345,7 +343,6 @@ export class PjlinkClient {
             }
 
             const session: PjlinkSession = {
-                authenticated: auth[1] === '1',
                 send: async (cls, command, param) => {
                     const request = `%${cls}${command} ${param}`;
                     socket.write(`${prefix}${request}\r`);
