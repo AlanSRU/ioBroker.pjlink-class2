@@ -4,7 +4,7 @@ const { expect } = require('chai');
 
 // the simulator is TypeScript and not part of the build
 require('ts-node').register({ transpileOnly: true, project: path.join(__dirname, '../tsconfig.json') });
-const { PjlinkSimulator } = require('../src/lib/simulator');
+const { PjlinkSimulator } = require('./lib/simulator');
 
 const NS = 'pjlink-class2.0';
 

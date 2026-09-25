@@ -2,12 +2,12 @@
  * A PJLink projector simulator for tests and for trying the adapter without
  * hardware. Not part of the adapter build.
  *
- * Standalone:  npx ts-node src/lib/simulator.ts [port] [class] [password]
- *   e.g.       npx ts-node src/lib/simulator.ts 4353 2 secret
+ * Standalone:  npx ts-node test/lib/simulator.ts [port] [class] [password]
+ *   e.g.       npx ts-node test/lib/simulator.ts 4353 2 secret
  */
 import { createSocket } from 'node:dgram';
 import { createServer, type Server, type Socket } from 'node:net';
-import { authDigest, type DigestAlgorithm } from './pjlink';
+import { authDigest, type DigestAlgorithm } from '../../src/lib/pjlink';
 
 /** Simulated projector state; tests read and change it directly. */
 export interface SimState {

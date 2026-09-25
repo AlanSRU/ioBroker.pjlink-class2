@@ -713,7 +713,7 @@ class PjlinkClass2 extends utils.Adapter {
     }
     const broadcast = (this.config.broadcastAddress || "255.255.255.255").split(/[\s,]+/).filter((a) => (0, import_node_net.isIP)(a) === 4);
     this.log.info(`Searching for PJLink Class 2 projectors via ${broadcast.join(", ")}...`);
-    const hits = await this.udp.search(broadcast, SEARCH_WAIT_MS);
+    const hits = await this.udp.search(broadcast, SEARCH_WAIT_MS, (ms) => this.delay(ms));
     const devices = [...(_a = this.config.devices) != null ? _a : []];
     const known = new Set(devices.map((d) => (d.host || "").trim()));
     for (const p of this.projectors.values()) {

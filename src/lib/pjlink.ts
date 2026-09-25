@@ -308,15 +308,20 @@ export class PjlinkClient {
         const lines = new LineReader(socket, this.timeoutMs);
         try {
             await new Promise<void>((resolve, reject) => {
-                const timer = setTimeout(() => {
-                    reject(new Error(`connection to ${this.host}:${this.port} timed out`));
-                }, this.timeoutMs);
+                // the socket's own inactivity timer, which also runs while connecting
+                const onTimeout = (): void => reject(new Error(`connection to ${this.host}:${this.port} timed out`));
+                const done = (): void => {
+                    socket.off('timeout', onTimeout);
+                    socket.setTimeout(0);
+                };
+                socket.setTimeout(this.timeoutMs);
+                socket.once('timeout', onTimeout);
                 socket.once('connect', () => {
-                    clearTimeout(timer);
+                    done();
                     resolve();
                 });
                 socket.once('error', err => {
-                    clearTimeout(timer);
+                    done();
                     reject(err);
                 });
                 socket.connect(this.port, this.host);
@@ -394,6 +399,11 @@ class LineReader {
     };
     private readonly onError = (err: Error): void => this.fail(err);
     private readonly onClose = (): void => this.fail(new Error('connection closed by the projector'));
+    private readonly onTimeout = (): void => {
+        const waiter = this.waiter;
+        this.waiter = undefined;
+        waiter?.reject(new ReplyTimeoutError(this.timeoutMs));
+    };
 
     /**
      * @param socket - socket to read from
@@ -406,22 +416,22 @@ class LineReader {
         socket.on('data', this.onData);
         socket.on('error', this.onError);
         socket.on('close', this.onClose);
+        socket.on('timeout', this.onTimeout);
     }
 
     /** Resolve with the next line. */
     public next(): Promise<string> {
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => {
-                this.waiter = undefined;
-                reject(new ReplyTimeoutError(this.timeoutMs));
-            }, this.timeoutMs);
+            // the socket's inactivity timer (see onTimeout), armed only while a reply is awaited
+            const disarm = (): void => void this.socket.setTimeout(0);
+            this.socket.setTimeout(this.timeoutMs);
             this.waiter = {
                 resolve: line => {
-                    clearTimeout(timer);
+                    disarm();
                     resolve(line);
                 },
                 reject: err => {
-                    clearTimeout(timer);
+                    disarm();
                     reject(err);
                 },
             };
@@ -434,6 +444,7 @@ class LineReader {
         this.socket.off('data', this.onData);
         this.socket.off('close', this.onClose);
         this.socket.off('error', this.onError);
+        this.socket.off('timeout', this.onTimeout);
         this.socket.on('error', () => undefined);
     }
 

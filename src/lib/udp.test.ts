@@ -55,7 +55,7 @@ describe('PjlinkUdp', () => {
         udp = new PjlinkUdp(n => received.push(n), port);
         await udp.open('127.0.0.1');
 
-        const search = udp.search(['127.0.0.1'], 200);
+        const search = udp.search(['127.0.0.1'], 200, ms => new Promise(resolve => setTimeout(resolve, ms)));
         await send(port, '%2ACKN=00:11:22:AA:BB:CC\r');
         const hits = await search;
         expect(hits).to.deep.equal([{ address: '127.0.0.1', mac: '00:11:22:aa:bb:cc' }]);

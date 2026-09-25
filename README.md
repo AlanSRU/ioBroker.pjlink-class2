@@ -84,10 +84,10 @@ poll.
 
 ## Testing without hardware
 
-`src/lib/simulator.ts` is a PJLink projector simulator (Class 1 or 2, optional password):
+`test/lib/simulator.ts` is a PJLink projector simulator (Class 1 or 2, optional password):
 
 ```bash
-npx ts-node src/lib/simulator.ts 4353 2 secret   # port, class, password
+npx ts-node test/lib/simulator.ts 4353 2 secret   # port, class, password
 ```
 
 ## Disclaimer

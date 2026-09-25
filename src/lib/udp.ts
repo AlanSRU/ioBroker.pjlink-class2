@@ -81,8 +81,13 @@ export class PjlinkUdp {
      *
      * @param broadcast - broadcast addresses to send to
      * @param waitMs - how long to collect answers
+     * @param delay - waits the given ms (the adapter's managed delay)
      */
-    public async search(broadcast: string[], waitMs: number): Promise<SearchHit[]> {
+    public async search(
+        broadcast: string[],
+        waitMs: number,
+        delay: (ms: number) => Promise<void>,
+    ): Promise<SearchHit[]> {
         const socket = this.socket;
         if (!socket) {
             throw new Error(`UDP port ${this.port} is not open, so search is unavailable`);
@@ -97,7 +102,7 @@ export class PjlinkUdp {
                     socket.send('%2SRCH\r', this.port, address, err => (err ? reject(err) : resolve())),
                 );
             }
-            await new Promise(resolve => setTimeout(resolve, waitMs));
+            await delay(waitMs);
             return [...this.searchHits.values()];
         } finally {
             this.searchHits = undefined;

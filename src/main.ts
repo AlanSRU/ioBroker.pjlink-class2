@@ -814,7 +814,7 @@ class PjlinkClass2 extends utils.Adapter {
             .split(/[\s,]+/)
             .filter(a => isIP(a) === 4);
         this.log.info(`Searching for PJLink Class 2 projectors via ${broadcast.join(', ')}...`);
-        const hits = await this.udp.search(broadcast, SEARCH_WAIT_MS);
+        const hits = await this.udp.search(broadcast, SEARCH_WAIT_MS, ms => this.delay(ms));
 
         const devices = [...((this.config.devices ?? []) as unknown as DeviceConfig[])];
         const known = new Set(devices.map(d => (d.host || '').trim()));

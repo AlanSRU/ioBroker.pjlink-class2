@@ -187,15 +187,19 @@ class PjlinkClient {
     const lines = new LineReader(socket, this.timeoutMs);
     try {
       await new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          reject(new Error(`connection to ${this.host}:${this.port} timed out`));
-        }, this.timeoutMs);
+        const onTimeout = () => reject(new Error(`connection to ${this.host}:${this.port} timed out`));
+        const done = () => {
+          socket.off("timeout", onTimeout);
+          socket.setTimeout(0);
+        };
+        socket.setTimeout(this.timeoutMs);
+        socket.once("timeout", onTimeout);
         socket.once("connect", () => {
-          clearTimeout(timer);
+          done();
           resolve();
         });
         socket.once("error", (err) => {
-          clearTimeout(timer);
+          done();
           reject(err);
         });
         socket.connect(this.port, this.host);
@@ -258,6 +262,7 @@ class LineReader {
     socket.on("data", this.onData);
     socket.on("error", this.onError);
     socket.on("close", this.onClose);
+    socket.on("timeout", this.onTimeout);
   }
   buffer = "";
   lines = [];
@@ -277,20 +282,23 @@ class LineReader {
   };
   onError = (err) => this.fail(err);
   onClose = () => this.fail(new Error("connection closed by the projector"));
+  onTimeout = () => {
+    const waiter = this.waiter;
+    this.waiter = void 0;
+    waiter == null ? void 0 : waiter.reject(new ReplyTimeoutError(this.timeoutMs));
+  };
   /** Resolve with the next line. */
   next() {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.waiter = void 0;
-        reject(new ReplyTimeoutError(this.timeoutMs));
-      }, this.timeoutMs);
+      const disarm = () => void this.socket.setTimeout(0);
+      this.socket.setTimeout(this.timeoutMs);
       this.waiter = {
         resolve: (line) => {
-          clearTimeout(timer);
+          disarm();
           resolve(line);
         },
         reject: (err) => {
-          clearTimeout(timer);
+          disarm();
           reject(err);
         }
       };
@@ -302,6 +310,7 @@ class LineReader {
     this.socket.off("data", this.onData);
     this.socket.off("close", this.onClose);
     this.socket.off("error", this.onError);
+    this.socket.off("timeout", this.onTimeout);
     this.socket.on("error", () => void 0);
   }
   deliver() {

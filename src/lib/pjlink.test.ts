@@ -13,7 +13,7 @@ import {
     parseLamps,
     parseReply,
 } from './pjlink';
-import { PjlinkSimulator } from './simulator';
+import { PjlinkSimulator } from '../../test/lib/simulator';
 
 describe('PJLink parsers', () => {
     it('computes the authentication digest (PJLink specification example)', () => {
