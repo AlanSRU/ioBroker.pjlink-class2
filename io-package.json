@@ -3,6 +3,19 @@
         "name": "pjlink-class2",
         "version": "0.1.1",
         "news": {
+            "0.1.2": {
+                "en": "Data source declared as polling (Class 2 notifications only supplement it); supported messages declared the current way; deprecated object API calls replaced",
+                "de": "Datenquelle als Abfrage (Polling) deklariert, Klasse-2-Benachrichtigungen ergänzen sie nur; unterstützte Nachrichten auf aktuelle Weise deklariert; veraltete Objekt-API-Aufrufe ersetzt",
+                "ru": "Источник данных объявлен как опрос (уведомления класса 2 лишь дополняют его); поддерживаемые сообщения объявлены по-новому; устаревшие вызовы API объектов заменены",
+                "pt": "Fonte de dados declarada como consulta periódica (as notificações de Classe 2 apenas a complementam); mensagens suportadas declaradas da forma atual; chamadas obsoletas da API de objetos substituídas",
+                "nl": "Gegevensbron gedeclareerd als peilen (Klasse 2-meldingen vullen dit alleen aan); ondersteunde berichten op de huidige manier gedeclareerd; verouderde object-API-aanroepen vervangen",
+                "fr": "Source de données déclarée en interrogation (les notifications de classe 2 ne font que la compléter) ; messages pris en charge déclarés de la manière actuelle ; appels obsolètes de l'API des objets remplacés",
+                "it": "Origine dati dichiarata come interrogazione periodica (le notifiche di Classe 2 la integrano soltanto); messaggi supportati dichiarati nel modo attuale; chiamate obsolete all'API degli oggetti sostituite",
+                "es": "Origen de datos declarado como sondeo (las notificaciones de Clase 2 solo lo complementan); mensajes admitidos declarados de la forma actual; llamadas obsoletas a la API de objetos sustituidas",
+                "pl": "Źródło danych zadeklarowane jako odpytywanie (powiadomienia klasy 2 tylko je uzupełniają); obsługiwane wiadomości zadeklarowane w aktualny sposób; przestarzałe wywołania API obiektów zastąpione",
+                "uk": "Джерело даних оголошено як опитування (сповіщення класу 2 лише доповнюють його); підтримувані повідомлення оголошено по-новому; застарілі виклики API об'єктів замінено",
+                "zh-cn": "数据源声明为轮询（2 类通知仅作补充）；以当前方式声明支持的消息；替换了已弃用的对象 API 调用"
+            },
             "0.1.1": {
                 "en": "Polls re-armed after each poll finishes, so a slow projector cannot cause overlapping polls; README lists minimum versions",
                 "de": "Abfragen werden erst nach Abschluss der vorherigen neu geplant, sodass sich bei einem langsamen Projektor keine Abfragen überschneiden; README nennt die Mindestversionen",
