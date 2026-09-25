@@ -35,6 +35,12 @@ const RESERVED_IDS = ['info'];
 /** How long a power command may go unconfirmed before control.power follows the projector again. */
 const POWER_CONFIRM_MS = 30_000;
 
+/** Consecutive failed polls before a projector that was answering counts as offline. */
+const OFFLINE_AFTER = 2;
+
+/** Successful polls in a row after which a repeated poll error is logged as a warning again. */
+const STABLE_POLLS = 10;
+
 /** Unanswered polls after which a Class 2 query counts as unsupported (one could be a stall). */
 const SILENT_LIMIT = 3;
 
@@ -86,6 +92,10 @@ interface Projector {
     powerStatus?: number;
     /** the last poll failure, so a repeated one is not logged as a warning again */
     lastPollError?: string;
+    /** consecutive failed polls */
+    failures: number;
+    /** consecutive successful polls */
+    successes: number;
     pollTimer?: ioBroker.Interval;
     refreshTimer?: ioBroker.Timeout;
 }
@@ -121,6 +131,12 @@ class PjlinkClass2 extends utils.Adapter {
         await this.removeStaleObjects();
         for (const p of this.projectors.values()) {
             await this.createBaseObjects(p);
+        }
+        for (const id of this.disabledIds) {
+            // not polled while disabled, so do not leave it looking reachable
+            if (await this.getObjectAsync(`${id}.info.connection`)) {
+                await this.setState(`${id}.info.connection`, { val: false, ack: true });
+            }
         }
         if (this.stopped) {
             return;
@@ -192,6 +208,8 @@ class PjlinkClass2 extends utils.Adapter {
                 cls: 0,
                 unsupported: new Set(),
                 silent: new Map(),
+                failures: 0,
+                successes: 0,
                 inputs: [],
                 lampCount: 0,
                 connected: false,
@@ -538,18 +556,27 @@ class PjlinkClass2 extends utils.Adapter {
             for (const [id, val] of updates) {
                 await this.setState(`${p.id}.${id}`, { val, ack: true });
             }
-            p.lastPollError = undefined;
+            p.failures = 0;
+            if (++p.successes >= STABLE_POLLS) {
+                p.lastPollError = undefined;
+            }
             await this.setConnected(p, true);
         } catch (error) {
-            // warn when the reason changes (e.g. a missing password), not on every poll
+            // A projector that was answering goes offline only after OFFLINE_AFTER failures in a row:
+            // one failure is often another controller holding the only connection, or a slow reply.
+            // Warn once per reason (e.g. a missing password), not on every poll.
+            p.successes = 0;
+            const confirmed = ++p.failures >= OFFLINE_AFTER || !p.connected;
             const message = (error as Error).message;
-            if (message !== p.lastPollError) {
+            if (confirmed && message !== p.lastPollError) {
                 this.log.warn(`[${p.label}] poll failed: ${message}`);
                 p.lastPollError = message;
             } else {
                 this.log.debug(`[${p.label}] poll failed: ${message}`);
             }
-            await this.setConnected(p, false);
+            if (confirmed) {
+                await this.setConnected(p, false);
+            }
         } finally {
             p.polling = false;
         }
@@ -868,6 +895,11 @@ class PjlinkClass2 extends utils.Adapter {
         }
         let added = 0;
         for (const hit of hits) {
+            if (known.has(hit.address)) {
+                // already configured: no extra connection, it may accept only one
+                this.log.info(`Found ${hit.address} (${hit.mac}), already configured`);
+                continue;
+            }
             let name = '';
             try {
                 const client = new PjlinkClient({ host: hit.address, password: this.config.password });
@@ -876,9 +908,6 @@ class PjlinkClass2 extends utils.Adapter {
                 // the address is enough to add it
             }
             this.log.info(`Found ${hit.address} (${hit.mac})${name ? ` "${name}"` : ''}`);
-            if (known.has(hit.address)) {
-                continue;
-            }
             devices.push({ enabled: true, name, host: hit.address, port: 4352 });
             added++;
         }

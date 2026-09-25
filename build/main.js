@@ -28,6 +28,8 @@ var import_pjlink = require("./lib/pjlink");
 var import_udp = require("./lib/udp");
 const RESERVED_IDS = ["info"];
 const POWER_CONFIRM_MS = 3e4;
+const OFFLINE_AFTER = 2;
+const STABLE_POLLS = 10;
 const SILENT_LIMIT = 3;
 const SEARCH_WAIT_MS = 1e4;
 const POWER_STATES = { 0: "Off", 1: "On", 2: "Cooling", 3: "Warming" };
@@ -66,6 +68,11 @@ class PjlinkClass2 extends utils.Adapter {
     await this.removeStaleObjects();
     for (const p of this.projectors.values()) {
       await this.createBaseObjects(p);
+    }
+    for (const id of this.disabledIds) {
+      if (await this.getObjectAsync(`${id}.info.connection`)) {
+        await this.setState(`${id}.info.connection`, { val: false, ack: true });
+      }
     }
     if (this.stopped) {
       return;
@@ -132,6 +139,8 @@ class PjlinkClass2 extends utils.Adapter {
         cls: 0,
         unsupported: /* @__PURE__ */ new Set(),
         silent: /* @__PURE__ */ new Map(),
+        failures: 0,
+        successes: 0,
         inputs: [],
         lampCount: 0,
         connected: false,
@@ -450,17 +459,24 @@ class PjlinkClass2 extends utils.Adapter {
       for (const [id, val] of updates) {
         await this.setState(`${p.id}.${id}`, { val, ack: true });
       }
-      p.lastPollError = void 0;
+      p.failures = 0;
+      if (++p.successes >= STABLE_POLLS) {
+        p.lastPollError = void 0;
+      }
       await this.setConnected(p, true);
     } catch (error) {
+      p.successes = 0;
+      const confirmed = ++p.failures >= OFFLINE_AFTER || !p.connected;
       const message = error.message;
-      if (message !== p.lastPollError) {
+      if (confirmed && message !== p.lastPollError) {
         this.log.warn(`[${p.label}] poll failed: ${message}`);
         p.lastPollError = message;
       } else {
         this.log.debug(`[${p.label}] poll failed: ${message}`);
       }
-      await this.setConnected(p, false);
+      if (confirmed) {
+        await this.setConnected(p, false);
+      }
     } finally {
       p.polling = false;
     }
@@ -759,6 +775,10 @@ class PjlinkClass2 extends utils.Adapter {
     }
     let added = 0;
     for (const hit of hits) {
+      if (known.has(hit.address)) {
+        this.log.info(`Found ${hit.address} (${hit.mac}), already configured`);
+        continue;
+      }
       let name = "";
       try {
         const client = new import_pjlink.PjlinkClient({ host: hit.address, password: this.config.password });
@@ -766,9 +786,6 @@ class PjlinkClass2 extends utils.Adapter {
       } catch {
       }
       this.log.info(`Found ${hit.address} (${hit.mac})${name ? ` "${name}"` : ""}`);
-      if (known.has(hit.address)) {
-        continue;
-      }
       devices.push({ enabled: true, name, host: hit.address, port: 4352 });
       added++;
     }
