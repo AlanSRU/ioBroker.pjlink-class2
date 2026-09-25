@@ -365,11 +365,13 @@ class PjlinkClass2 extends utils.Adapter {
       await p.client.session(async (s) => {
         if (!p.cls) {
           const cls = await this.query(p, s, 1, "CLSS");
-          p.cls = cls === "2" ? 2 : 1;
-          if (p.cls === 2) {
-            await this.createClass2Objects(p);
+          if (cls !== void 0 || p.unsupported.has("1CLSS?")) {
+            p.cls = cls === "2" ? 2 : 1;
+            if (p.cls === 2) {
+              await this.createClass2Objects(p);
+            }
+            updates.push(["info.class", p.cls]);
           }
-          updates.push(["info.class", p.cls]);
         }
         const c2 = p.cls === 2;
         const inputClass = c2 ? 2 : 1;
@@ -411,11 +413,13 @@ class PjlinkClass2 extends utils.Adapter {
       for (const [id, val] of updates) {
         await this.setState(`${p.id}.${id}`, { val, ack: true });
       }
+      p.lastPollError = void 0;
       await this.setConnected(p, true);
     } catch (error) {
       const message = error.message;
-      if (p.connected || error instanceof import_pjlink.PjlinkError && error.code === "ERRA") {
+      if (message !== p.lastPollError) {
         this.log.warn(`[${p.label}] poll failed: ${message}`);
+        p.lastPollError = message;
       } else {
         this.log.debug(`[${p.label}] poll failed: ${message}`);
       }
@@ -573,7 +577,7 @@ class PjlinkClass2 extends utils.Adapter {
         break;
       }
       case "LKUP":
-        if (p.cls === 2) {
+        if (p.cls === 2 && /^([0-9a-f]{2}:){5}[0-9a-f]{2}$/i.test(n.value)) {
           updates = [["info.macAddress", n.value.toLowerCase()]];
         }
         p.nextInfo = 0;
@@ -622,7 +626,10 @@ class PjlinkClass2 extends utils.Adapter {
       case "control.input": {
         const code = String((_a = state.val) != null ? _a : "").toUpperCase();
         if (!(0, import_pjlink.isInputCode)(code) || p.cls !== 2 && !/^[1-5][1-9]$/.test(code)) {
-          this.log.warn(`[${p.label}] "${code}" is not a valid PJLink Class ${p.cls || 1} input code`);
+          const message = `"${code}" is not a valid PJLink Class ${p.cls || 1} input code`;
+          this.log.warn(`[${p.label}] ${message}`);
+          await this.setState(`${p.id}.info.lastError`, { val: message, ack: true });
+          this.refreshSoon(p, 0);
           return;
         }
         request = [p.cls === 2 ? 2 : 1, "INPT", code];

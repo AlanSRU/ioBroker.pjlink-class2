@@ -78,8 +78,8 @@ class ReplyTimeoutError extends Error {
     this.name = "ReplyTimeoutError";
   }
 }
-function authDigest(random, password) {
-  return (0, import_node_crypto.createHash)("md5").update(random + password, "utf8").digest("hex");
+function authDigest(random, password, algorithm = "md5") {
+  return (0, import_node_crypto.createHash)(algorithm).update(random + password, "utf8").digest("hex");
 }
 function parseReply(line) {
   const m = /^%([12])([A-Z0-9]{4})=(.*)$/i.exec(line);
@@ -128,6 +128,7 @@ class PjlinkClient {
   timeoutMs;
   queue = Promise.resolve();
   active;
+  algorithm = "md5";
   /** @param options - connection options */
   constructor(options) {
     var _a, _b;
@@ -143,7 +144,7 @@ class PjlinkClient {
    * @param fn - uses the session to send commands
    */
   session(fn) {
-    const run = this.queue.then(() => this.runSession(fn));
+    const run = this.queue.then(() => this.authenticatedSession(fn));
     this.queue = run.catch(() => void 0);
     return run;
   }
@@ -157,12 +158,29 @@ class PjlinkClient {
   send(cls, command, param) {
     return this.session((s) => s.send(cls, command, param));
   }
+  /** The digest algorithm that authentication currently uses. */
+  get digestAlgorithm() {
+    return this.algorithm;
+  }
   /** Abort the running session, if any. */
   close() {
     var _a;
     (_a = this.active) == null ? void 0 : _a.destroy();
   }
-  async runSession(fn) {
+  async authenticatedSession(fn) {
+    try {
+      return await this.runSession(fn, this.algorithm);
+    } catch (error) {
+      if (!(error instanceof PjlinkError && error.code === "ERRA")) {
+        throw error;
+      }
+      const other = this.algorithm === "md5" ? "sha256" : "md5";
+      const result = await this.runSession(fn, other);
+      this.algorithm = other;
+      return result;
+    }
+  }
+  async runSession(fn, algorithm) {
     var _a;
     const socket = new import_node_net.Socket();
     this.active = socket;
@@ -194,7 +212,7 @@ class PjlinkClient {
         if (!this.password) {
           throw new Error("the projector requires a PJLink password, but none is configured");
         }
-        prefix = authDigest((_a = auth[2]) != null ? _a : "", this.password);
+        prefix = authDigest((_a = auth[2]) != null ? _a : "", this.password, algorithm);
       }
       const session = {
         authenticated: auth[1] === "1",

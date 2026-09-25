@@ -7,7 +7,7 @@
  */
 import { createSocket } from 'node:dgram';
 import { createServer, type Server, type Socket } from 'node:net';
-import { authDigest } from './pjlink';
+import { authDigest, type DigestAlgorithm } from './pjlink';
 
 /** Simulated projector state; tests read and change it directly. */
 export interface SimState {
@@ -65,6 +65,8 @@ export interface SimOptions {
     password?: string;
     /** commands answered with ERR1, e.g. to mimic a projector without FREZ */
     unsupported?: string[];
+    /** authentication digest the simulator expects, md5 by default */
+    digest?: DigestAlgorithm;
     /** commands that get no answer at all, as an NEC NP3250 does with every Class 2 command */
     ignored?: string[];
 }
@@ -101,6 +103,9 @@ export class PjlinkSimulator {
     private readonly password: string;
     private readonly unsupported: Set<string>;
     private readonly ignored: Set<string>;
+    private readonly digest: DigestAlgorithm;
+    /** number of TCP connections accepted */
+    public connections = 0;
     private server?: Server;
     private readonly sockets = new Set<Socket>();
 
@@ -110,6 +115,7 @@ export class PjlinkSimulator {
         this.password = options.password ?? '';
         this.unsupported = new Set(options.unsupported ?? []);
         this.ignored = new Set(options.ignored ?? []);
+        this.digest = options.digest ?? 'md5';
     }
 
     /**
@@ -148,6 +154,7 @@ export class PjlinkSimulator {
 
     private accept(socket: Socket): void {
         this.sockets.add(socket);
+        this.connections++;
         socket.on('close', () => this.sockets.delete(socket));
         socket.on('error', () => undefined);
         const random = Math.random().toString(16).slice(2, 10).padEnd(8, '0');
@@ -161,12 +168,13 @@ export class PjlinkSimulator {
             buffer = lines.pop() ?? '';
             for (let line of lines) {
                 if (!authenticated) {
-                    if (line.slice(0, 32) !== authDigest(random, this.password)) {
+                    const digest = authDigest(random, this.password, this.digest);
+                    if (line.slice(0, digest.length) !== digest) {
                         socket.end('PJLINK ERRA\r');
                         return;
                     }
                     authenticated = true;
-                    line = line.slice(32);
+                    line = line.slice(digest.length);
                 }
                 this.received.push(line);
                 if (!this.ignored.has(line.slice(2, 6))) {

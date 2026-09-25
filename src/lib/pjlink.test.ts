@@ -106,6 +106,17 @@ describe('PjlinkClient', () => {
         expect(sim.received).to.deep.equal(['%1POWR ?', '%1CLSS ?']);
     });
 
+    it('falls back to a sha256 digest and remembers it', async () => {
+        sim = new PjlinkSimulator({ password: 'secret', digest: 'sha256' });
+        const port = await sim.listen();
+        const client = new PjlinkClient({ host: '127.0.0.1', port, password: 'secret' });
+        expect(await client.send(1, 'POWR', '?')).to.equal('0');
+        expect(client.digestAlgorithm).to.equal('sha256');
+        expect(sim.connections).to.equal(2); // md5 refused, then sha256
+        expect(await client.send(1, 'CLSS', '?')).to.equal('2');
+        expect(sim.connections).to.equal(3); // no md5 attempt any more
+    });
+
     it('rejects a wrong password with ERRA', async () => {
         sim = new PjlinkSimulator({ password: 'secret' });
         const port = await sim.listen();

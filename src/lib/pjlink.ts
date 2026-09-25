@@ -3,8 +3,12 @@
  *
  * TCP 4352, lines terminated by CR. On connect the projector greets with
  *   "PJLINK 0"            no authentication
- *   "PJLINK 1 <random>"   authentication: the first command is prefixed with
- *                         md5(<random> + password) as 32 lower-case hex digits
+ *   "PJLINK 1 <random>"   authentication: the first command is prefixed with a
+ *                         hex digest of <random> + password: md5 in older
+ *                         projectors, sha256 in newer ones (the JBMIA test
+ *                         tool PJLinkTEST4CNT accepts only sha256). The greeting
+ *                         does not say which, so the client tries one, retries
+ *                         with the other on ERRA, and remembers the one that worked.
  * Commands are "%<class><CMD> <param>", replies "%<class><CMD>=<value>".
  * The value is "OK" for a successful set, or ERR1 (undefined command),
  * ERR2 (out of parameter), ERR3 (unavailable time) or ERR4 (projector
@@ -102,14 +106,18 @@ export interface AvMute {
     audio: boolean;
 }
 
+/** Hash used for the authentication digest. */
+export type DigestAlgorithm = 'md5' | 'sha256';
+
 /**
- * The authentication digest: md5 of the projector's random number and the password.
+ * The authentication digest of the projector's random number and the password.
  *
  * @param random - random number from the "PJLINK 1 <random>" greeting
  * @param password - the projector's PJLink password
+ * @param algorithm - md5 (older projectors) or sha256 (newer ones)
  */
-export function authDigest(random: string, password: string): string {
-    return createHash('md5')
+export function authDigest(random: string, password: string, algorithm: DigestAlgorithm = 'md5'): string {
+    return createHash(algorithm)
         .update(random + password, 'utf8')
         .digest('hex');
 }
@@ -236,6 +244,7 @@ export class PjlinkClient {
     private readonly timeoutMs: number;
     private queue: Promise<unknown> = Promise.resolve();
     private active?: Socket;
+    private algorithm: DigestAlgorithm = 'md5';
 
     /** @param options - connection options */
     public constructor(options: PjlinkClientOptions) {
@@ -252,7 +261,7 @@ export class PjlinkClient {
      * @param fn - uses the session to send commands
      */
     public session<T>(fn: (session: PjlinkSession) => Promise<T>): Promise<T> {
-        const run = this.queue.then(() => this.runSession(fn));
+        const run = this.queue.then(() => this.authenticatedSession(fn));
         this.queue = run.catch(() => undefined);
         return run;
     }
@@ -268,12 +277,32 @@ export class PjlinkClient {
         return this.session(s => s.send(cls, command, param));
     }
 
+    /** The digest algorithm that authentication currently uses. */
+    public get digestAlgorithm(): DigestAlgorithm {
+        return this.algorithm;
+    }
+
     /** Abort the running session, if any. */
     public close(): void {
         this.active?.destroy();
     }
 
-    private async runSession<T>(fn: (session: PjlinkSession) => Promise<T>): Promise<T> {
+    private async authenticatedSession<T>(fn: (session: PjlinkSession) => Promise<T>): Promise<T> {
+        try {
+            return await this.runSession(fn, this.algorithm);
+        } catch (error) {
+            // ERRA answers the first command, so fn has not acted on any reply yet
+            if (!(error instanceof PjlinkError && error.code === 'ERRA')) {
+                throw error;
+            }
+            const other: DigestAlgorithm = this.algorithm === 'md5' ? 'sha256' : 'md5';
+            const result = await this.runSession(fn, other);
+            this.algorithm = other;
+            return result;
+        }
+    }
+
+    private async runSession<T>(fn: (session: PjlinkSession) => Promise<T>, algorithm: DigestAlgorithm): Promise<T> {
         const socket = new Socket();
         this.active = socket;
         const lines = new LineReader(socket, this.timeoutMs);
@@ -307,7 +336,7 @@ export class PjlinkClient {
                 if (!this.password) {
                     throw new Error('the projector requires a PJLink password, but none is configured');
                 }
-                prefix = authDigest(auth[2] ?? '', this.password);
+                prefix = authDigest(auth[2] ?? '', this.password, algorithm);
             }
 
             const session: PjlinkSession = {

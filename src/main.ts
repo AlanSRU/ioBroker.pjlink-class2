@@ -79,6 +79,8 @@ interface Projector {
     /** a power command that the projector has not confirmed yet */
     pendingPower?: { on: boolean; fromStatus: number; until: number };
     powerStatus?: number;
+    /** the last poll failure, so a repeated one is not logged as a warning again */
+    lastPollError?: string;
     pollTimer?: ioBroker.Interval;
     refreshTimer?: ioBroker.Timeout;
 }
@@ -443,11 +445,14 @@ class PjlinkClass2 extends utils.Adapter {
             await p.client.session(async s => {
                 if (!p.cls) {
                     const cls = await this.query(p, s, 1, 'CLSS');
-                    p.cls = cls === '2' ? 2 : 1;
-                    if (p.cls === 2) {
-                        await this.createClass2Objects(p);
+                    // unanswered (ERR3/ERR4): ask again next poll, Class 1 until then
+                    if (cls !== undefined || p.unsupported.has('1CLSS?')) {
+                        p.cls = cls === '2' ? 2 : 1;
+                        if (p.cls === 2) {
+                            await this.createClass2Objects(p);
+                        }
+                        updates.push(['info.class', p.cls]);
                     }
-                    updates.push(['info.class', p.cls]);
                 }
                 const c2 = p.cls === 2;
                 const inputClass = c2 ? 2 : 1;
@@ -490,11 +495,14 @@ class PjlinkClass2 extends utils.Adapter {
             for (const [id, val] of updates) {
                 await this.setState(`${p.id}.${id}`, { val, ack: true });
             }
+            p.lastPollError = undefined;
             await this.setConnected(p, true);
         } catch (error) {
+            // warn when the reason changes (e.g. a missing password), not on every poll
             const message = (error as Error).message;
-            if (p.connected || (error instanceof PjlinkError && error.code === 'ERRA')) {
+            if (message !== p.lastPollError) {
                 this.log.warn(`[${p.label}] poll failed: ${message}`);
+                p.lastPollError = message;
             } else {
                 this.log.debug(`[${p.label}] poll failed: ${message}`);
             }
@@ -663,7 +671,8 @@ class PjlinkClass2 extends utils.Adapter {
             }
             case 'LKUP':
                 // the projector has just come onto the network: read everything
-                if (p.cls === 2) {
+                // the JBMIA test tool sends a placeholder "xx:xx:xx:xx:xx:xx"
+                if (p.cls === 2 && /^([0-9a-f]{2}:){5}[0-9a-f]{2}$/i.test(n.value)) {
                     updates = [['info.macAddress', n.value.toLowerCase()]];
                 }
                 p.nextInfo = 0;
@@ -713,7 +722,10 @@ class PjlinkClass2 extends utils.Adapter {
             case 'control.input': {
                 const code = String(state.val ?? '').toUpperCase();
                 if (!isInputCode(code) || (p.cls !== 2 && !/^[1-5][1-9]$/.test(code))) {
-                    this.log.warn(`[${p.label}] "${code}" is not a valid PJLink Class ${p.cls || 1} input code`);
+                    const message = `"${code}" is not a valid PJLink Class ${p.cls || 1} input code`;
+                    this.log.warn(`[${p.label}] ${message}`);
+                    await this.setState(`${p.id}.info.lastError`, { val: message, ack: true });
+                    this.refreshSoon(p, 0); // put the real input back
                     return;
                 }
                 request = [p.cls === 2 ? 2 : 1, 'INPT', code];

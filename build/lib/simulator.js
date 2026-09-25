@@ -55,15 +55,19 @@ class PjlinkSimulator {
   password;
   unsupported;
   ignored;
+  digest;
+  /** number of TCP connections accepted */
+  connections = 0;
   server;
   sockets = /* @__PURE__ */ new Set();
   /** @param options - simulator options */
   constructor(options = {}) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     this.cls = (_a = options.cls) != null ? _a : 2;
     this.password = (_b = options.password) != null ? _b : "";
     this.unsupported = new Set((_c = options.unsupported) != null ? _c : []);
     this.ignored = new Set((_d = options.ignored) != null ? _d : []);
+    this.digest = (_e = options.digest) != null ? _e : "md5";
   }
   /**
    * Start listening; resolves with the port.
@@ -98,6 +102,7 @@ class PjlinkSimulator {
   }
   accept(socket) {
     this.sockets.add(socket);
+    this.connections++;
     socket.on("close", () => this.sockets.delete(socket));
     socket.on("error", () => void 0);
     const random = Math.random().toString(16).slice(2, 10).padEnd(8, "0");
@@ -111,12 +116,13 @@ class PjlinkSimulator {
       buffer = (_a = lines.pop()) != null ? _a : "";
       for (let line of lines) {
         if (!authenticated) {
-          if (line.slice(0, 32) !== (0, import_pjlink.authDigest)(random, this.password)) {
+          const digest = (0, import_pjlink.authDigest)(random, this.password, this.digest);
+          if (line.slice(0, digest.length) !== digest) {
             socket.end("PJLINK ERRA\r");
             return;
           }
           authenticated = true;
-          line = line.slice(32);
+          line = line.slice(digest.length);
         }
         this.received.push(line);
         if (!this.ignored.has(line.slice(2, 6))) {

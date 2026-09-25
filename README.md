@@ -33,7 +33,7 @@ report Class 2.
 | Setting | |
 |---|---|
 | Projectors | One row per projector: name, IP address or host name, port (4352). The name becomes the object folder; leave it empty to use the host. |
-| PJLink password | Used for every projector that asks for authentication. Stored encrypted. |
+| PJLink password | Used for every projector that asks for authentication. Stored encrypted. Both digests are supported: MD5 (older projectors) and SHA-256 (newer ones); the adapter finds out which one a projector accepts. |
 | Status poll interval | Power, input, mute, freeze, error status and input resolution. Default 5 s. |
 | Information poll interval | Names, inputs, lamps and other slow-changing values. Default 300 s. They are also read on (re)connect and after a Class 2 `LKUP` notification. |
 | Listen on UDP 4352 | Receives Class 2 notifications and search replies. Only one program per host can listen on this port, which is why one instance handles all projectors. |
@@ -78,7 +78,7 @@ command the projector refuses outright (`ERR3` while warming or cooling) is repo
 ## Class 2 notifications
 
 A Class 2 projector sends notifications (power, input, error status, link up) to UDP 4352 of a
-controller. They are matched to a projector by source IP address, so configure projectors on the
+controller. Where the projector lets you set the notification destination, set it to the ioBroker host. They are matched to a projector by source IP address, so configure projectors on the
 address they send from. Polling keeps running, so a missed datagram is corrected at the next
 poll.
 
