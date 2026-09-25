@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "pjlink-class2",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "news": {
             "0.1.2": {
                 "en": "Data source declared as polling (Class 2 notifications only supplement it); supported messages declared the current way; deprecated object API calls replaced",

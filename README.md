@@ -106,7 +106,7 @@ Association (JBMIA); see the [PJLink website](https://pjlink.jbmia.or.jp/english
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.2 (2026-09-25)
 * (Alan Paris) Declare the data source as polling (Class 2 notifications only supplement it) and supported messages the current way
 * (Alan Paris) Replace deprecated object API calls
 
